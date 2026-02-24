@@ -504,6 +504,33 @@ For devices:
 
 </details>
 
+---
+
+## Looper Device API
+
+Provides direct access to the LooperDevice API for Looper instances. Addressed by track and device index, the same as the Device API. The targeted device must be a Looper; requests to non-Looper devices are ignored.
+
+<details>
+<summary><b>Documentation</b>: Looper Device API</summary>
+
+### Looper properties
+
+| Address | Query params | Response params | Description |
+|:---|:---|:---|:---|
+| /live/looper/get/loop_length | track_id, device_id | track_id, device_id, loop_length | Get the length of the Looper's buffer |
+| /live/looper/start_listen/loop_length | track_id, device_id | | Subscribe to loop_length changes (pushes to /live/looper/get/loop_length) |
+| /live/looper/stop_listen/loop_length | track_id, device_id | | Unsubscribe from loop_length changes |
+
+### Looper methods
+
+| Address | Query params | Description |
+|:---|:---|:---|
+| /live/looper/record | track_id, device_id | Record incoming audio |
+| /live/looper/overdub | track_id, device_id | Play back while layering incoming audio |
+| /live/looper/play | track_id, device_id | Play back without overdubbing |
+| /live/looper/stop | track_id, device_id | Stop playback |
+
+</details>
 
 ---
 

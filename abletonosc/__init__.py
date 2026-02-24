@@ -10,6 +10,7 @@ from .clip import ClipHandler
 from .clip_slot import ClipSlotHandler
 from .track import TrackHandler
 from .device import DeviceHandler
+from .looper_device import LooperDeviceHandler
 from .scene import SceneHandler
 from .view import ViewHandler
 from .midimap import MidiMapHandler
