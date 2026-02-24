@@ -322,6 +322,106 @@ See [Device API](#device-api) for details on Device type/class_names.
 
 ---
 
+## Return Track API
+
+Represents a return (aux/send) track. Return tracks are accessed with 0-based indexing into `song.return_tracks`. They support a subset of regular track properties (no `arm`, `fold_state`, `can_be_armed`, `is_foldable`, `is_grouped`, `current_monitoring_state`, or input routing).
+
+<details>
+<summary><b>Documentation</b>: Return Track API</summary>
+
+### Return track methods
+
+| Address                         | Query params | Response params | Description                    |
+|:--------------------------------|:-------------|:----------------|:-------------------------------|
+| /live/return/stop_all_clips     | track_id     |                 | Stop all clips on return track |
+| /live/return/delete_device      | track_id     |                 | Delete device on return track  |
+
+### Return track properties
+
+ - Changes for any return track property can be listened for by calling `/live/return/start_listen/<property> <track_index>`
+ - Responses will be sent to `/live/return/get/<property>`, with parameters `<track_index> <property_value>`
+
+#### Getters
+
+| Address                                              | Query params      | Response params            | Description                                       |
+|:-----------------------------------------------------|:------------------|:---------------------------|:--------------------------------------------------|
+| /live/return/get/color                               | track_id          | track_id, color            | Query return track color                          |
+| /live/return/get/color_index                         | track_id          | track_id, color_index      | Query return track color index                    |
+| /live/return/get/fired_slot_index                    | track_id          | track_id, index            | Query currently-fired slot                        |
+| /live/return/get/has_audio_input                     | track_id          | track_id, has_audio_input  | Query has_audio_input                             |
+| /live/return/get/has_audio_output                    | track_id          | track_id, has_audio_output | Query has_audio_output                            |
+| /live/return/get/has_midi_input                      | track_id          | track_id, has_midi_input   | Query has_midi_input                              |
+| /live/return/get/has_midi_output                     | track_id          | track_id, has_midi_output  | Query has_midi_output                             |
+| /live/return/get/is_visible                          | track_id          | track_id, is_visible       | Query whether return track is visible             |
+| /live/return/get/mute                                | track_id          | track_id, mute             | Query return track mute                           |
+| /live/return/get/name                                | track_id          | track_id, name             | Query return track name                           |
+| /live/return/get/output_meter_left                   | track_id          | track_id, level            | Query output level, left channel                  |
+| /live/return/get/output_meter_level                  | track_id          | track_id, level            | Query output level, both channels                 |
+| /live/return/get/output_meter_right                  | track_id          | track_id, level            | Query output level, right channel                 |
+| /live/return/get/panning                             | track_id          | track_id, panning          | Query return track panning                        |
+| /live/return/get/playing_slot_index                  | track_id          | track_id, index            | Query currently-playing slot                      |
+| /live/return/get/send                                | track_id, send_id | track_id, send_id, value   | Query return track send                           |
+| /live/return/get/solo                                | track_id          | track_id, solo             | Query return track solo                           |
+| /live/return/get/volume                              | track_id          | track_id, volume           | Query return track volume                         |
+
+#### Setters
+
+| Address                                     | Query params             | Response params | Description                              |
+|:--------------------------------------------|:-------------------------|:----------------|:-----------------------------------------|
+| /live/return/set/color                      | track_id, color          |                 | Set return track color                   |
+| /live/return/set/color_index                | track_id, color_index    |                 | Set return track color index             |
+| /live/return/set/mute                       | track_id, mute           |                 | Set return track mute (1=on, 0=off)      |
+| /live/return/set/name                       | track_id, name           |                 | Set return track name                    |
+| /live/return/set/panning                    | track_id, panning        |                 | Set return track panning                 |
+| /live/return/set/send                       | track_id, send_id, value |                 | Set return track send                    |
+| /live/return/set/solo                       | track_id, solo           |                 | Set return track solo (1=on, 0=off)      |
+| /live/return/set/volume                     | track_id, volume         |                 | Set return track volume                  |
+
+### Return track: Properties of clips
+
+| Address                                          | Query params | Response params             | Description                                           |
+|:-------------------------------------------------|:-------------|:----------------------------|:------------------------------------------------------|
+| /live/return/get/clips/name                      | track_id     | track_id, [name, ....]      | Query all clip names on return track                  |
+| /live/return/get/clips/length                    | track_id     | track_id, [length, ...]     | Query all clip lengths on return track                |
+| /live/return/get/clips/color                     | track_id     | track_id, [color, ...]      | Query all clip colors on return track                 |
+| /live/return/get/arrangement_clips/name           | track_id     | track_id, [name, ....]      | Query arrangement view clip names on return track     |
+| /live/return/get/arrangement_clips/length         | track_id     | track_id, [length, ...]     | Query arrangement view clip lengths on return track   |
+| /live/return/get/arrangement_clips/start_time     | track_id     | track_id, [start_time, ...] | Query arrangement view clip times on return track     |
+| /live/return/delete_clip                         | track_id, clip_index |                       | Delete a clip on the return track                     |
+
+### Return track: Properties of devices
+
+| Address                                    | Query params | Response params        | Description                                     |
+|:-------------------------------------------|:-------------|:-----------------------|:------------------------------------------------|
+| /live/return/get/num_devices               | track_id     | track_id, num_devices  | Query the number of devices on the return track |
+| /live/return/get/devices/name              | track_id     | track_id, [name, ...]  | Query all device names on return track          |
+| /live/return/get/devices/type              | track_id     | track_id, [type, ...]  | Query all device types on return track          |
+| /live/return/get/devices/class_name        | track_id     | track_id, [class, ...] | Query all device class names on return track    |
+| /live/return/get/devices/can_have_chains   | track_id     | track_id, [bool, ...]  | Query can_have_chains for devices               |
+
+### Return track: Output routing
+
+| Address                                                  | Query params        | Response params          | Description                         |
+|:---------------------------------------------------------|:--------------------|:-------------------------|:------------------------------------|
+| /live/return/get/available_output_routing_types           | track_id            | track_id, [type, ...]    | List output routing types           |
+| /live/return/get/available_output_routing_channels        | track_id            | track_id, [channel, ...] | List output routing channels        |
+| /live/return/get/output_routing_type                     | track_id            | track_id, type           | Query current output routing type   |
+| /live/return/set/output_routing_type                     | track_id, type      |                          | Set output routing type             |
+| /live/return/get/output_routing_channel                  | track_id            | track_id, channel        | Query current output routing channel|
+| /live/return/set/output_routing_channel                  | track_id, channel   |                          | Set output routing channel          |
+
+### Song-level return track queries
+
+| Address                              | Query params                    | Response params        | Description                                                              |
+|:-------------------------------------|:--------------------------------|:-----------------------|:-------------------------------------------------------------------------|
+| /live/song/get/num_return_tracks     |                                 | num_return_tracks      | Query the number of return tracks                                        |
+| /live/song/get/return_track_names    | [index_min, index_max]          | [name, ...]            | Query return track names (optionally, over a given range)                |
+| /live/song/get/return_track_data     | index_min, index_max, props...  | [various]              | Query bulk properties of return tracks/clips (same format as track_data) |
+
+</details>
+
+---
+
 ## Clip Slot API
 
 A Clip Slot represents a container for a clip. It is used to create and delete clips, and query their existence.
