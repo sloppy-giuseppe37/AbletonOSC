@@ -38,6 +38,6 @@ class LooperDeviceHandler(AbletonOSCHandler):
         #--------------------------------------------------------------------------------
         # Methods: record, overdub, play, stop
         #--------------------------------------------------------------------------------
-        for method in ["record", "overdub", "play", "stop"]:
+        for method in ["record", "overdub", "play", "stop", "undo", "clear"]:
             self.osc_server.add_handler("/live/looper/%s" % method,
                                         create_looper_callback(self._call_method, method))

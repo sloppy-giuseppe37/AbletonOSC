@@ -629,6 +629,8 @@ Provides direct access to the LooperDevice API for Looper instances. Addressed b
 | /live/looper/overdub | track_id, device_id | Play back while layering incoming audio |
 | /live/looper/play | track_id, device_id | Play back without overdubbing |
 | /live/looper/stop | track_id, device_id | Stop playback |
+| /live/looper/undo | track_id, device_id | Undo the last overdub |
+| /live/looper/clear | track_id, device_id | Clear the looper buffer |
 
 </details>
 

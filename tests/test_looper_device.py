@@ -47,6 +47,16 @@ def test_looper_stop(client):
     wait_one_tick()
 
 
+def test_looper_undo(client):
+    client.send_message("/live/looper/undo", [LOOPER_TRACK, LOOPER_DEVICE])
+    wait_one_tick()
+
+
+def test_looper_clear(client):
+    client.send_message("/live/looper/clear", [LOOPER_TRACK, LOOPER_DEVICE])
+    wait_one_tick()
+
+
 def test_looper_non_looper_device(client):
     """Targeting a non-Looper device should return no response."""
     result = client.query("/live/looper/get/loop_length",
