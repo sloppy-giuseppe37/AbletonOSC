@@ -7,10 +7,17 @@ class DeviceHandler(AbletonOSCHandler):
         self.class_identifier = "device"
 
     def init_api(self):
+        self._register_device_handlers("/live/device", self.song.tracks)
+        self._register_device_handlers("/live/return/device", self.song.return_tracks)
+
+    def _register_device_handlers(self, prefix: str, track_list):
         def create_device_callback(func, *args, include_ids: bool = False):
             def device_callback(params: Tuple[Any]):
                 track_index, device_index = int(params[0]), int(params[1])
-                device = self.song.tracks[track_index].devices[device_index]
+                if track_index < 0 or track_index >= len(track_list):
+                    self.logger.warning("Invalid track index: %d" % track_index)
+                    return None
+                device = track_list[track_index].devices[device_index]
                 if (include_ids):
                     rv = func(device, *args, params[0:])
                 else:
@@ -32,18 +39,18 @@ class DeviceHandler(AbletonOSCHandler):
         ]
 
         for method in methods:
-            self.osc_server.add_handler("/live/device/%s" % method,
+            self.osc_server.add_handler("%s/%s" % (prefix, method),
                                         create_device_callback(self._call_method, method))
 
         for prop in properties_r + properties_rw:
-            self.osc_server.add_handler("/live/device/get/%s" % prop,
+            self.osc_server.add_handler("%s/get/%s" % (prefix, prop),
                                         create_device_callback(self._get_property, prop))
-            self.osc_server.add_handler("/live/device/start_listen/%s" % prop,
+            self.osc_server.add_handler("%s/start_listen/%s" % (prefix, prop),
                                         create_device_callback(self._start_listen, prop))
-            self.osc_server.add_handler("/live/device/stop_listen/%s" % prop,
+            self.osc_server.add_handler("%s/stop_listen/%s" % (prefix, prop),
                                         create_device_callback(self._stop_listen, prop))
         for prop in properties_rw:
-            self.osc_server.add_handler("/live/device/set/%s" % prop,
+            self.osc_server.add_handler("%s/set/%s" % (prefix, prop),
                                         create_device_callback(self._set_property, prop))
 
         #--------------------------------------------------------------------------------
@@ -71,13 +78,13 @@ class DeviceHandler(AbletonOSCHandler):
             for index, value in enumerate(params):
                 device.parameters[index].value = value
 
-        self.osc_server.add_handler("/live/device/get/num_parameters", create_device_callback(device_get_num_parameters))
-        self.osc_server.add_handler("/live/device/get/parameters/name", create_device_callback(device_get_parameters_name))
-        self.osc_server.add_handler("/live/device/get/parameters/value", create_device_callback(device_get_parameters_value))
-        self.osc_server.add_handler("/live/device/get/parameters/min", create_device_callback(device_get_parameters_min))
-        self.osc_server.add_handler("/live/device/get/parameters/max", create_device_callback(device_get_parameters_max))
-        self.osc_server.add_handler("/live/device/get/parameters/is_quantized", create_device_callback(device_get_parameters_is_quantized))
-        self.osc_server.add_handler("/live/device/set/parameters/value", create_device_callback(device_set_parameters_value))
+        self.osc_server.add_handler("%s/get/num_parameters" % prefix, create_device_callback(device_get_num_parameters))
+        self.osc_server.add_handler("%s/get/parameters/name" % prefix, create_device_callback(device_get_parameters_name))
+        self.osc_server.add_handler("%s/get/parameters/value" % prefix, create_device_callback(device_get_parameters_value))
+        self.osc_server.add_handler("%s/get/parameters/min" % prefix, create_device_callback(device_get_parameters_min))
+        self.osc_server.add_handler("%s/get/parameters/max" % prefix, create_device_callback(device_get_parameters_max))
+        self.osc_server.add_handler("%s/get/parameters/is_quantized" % prefix, create_device_callback(device_get_parameters_is_quantized))
+        self.osc_server.add_handler("%s/set/parameters/value" % prefix, create_device_callback(device_set_parameters_value))
 
         #--------------------------------------------------------------------------------
         # Device: Get/set individual parameters
@@ -99,11 +106,11 @@ class DeviceHandler(AbletonOSCHandler):
             def property_changed_callback():
                 value = device.parameters[params[2]].value
                 self.logger.info("Property %s changed of %s %s: %s" % ('value', 'device parameter', str(params), value))
-                self.osc_server.send("/live/device/get/parameter/value", (*params, value,))
+                self.osc_server.send("%s/get/parameter/value" % prefix, (*params, value,))
 
                 value_string = device.parameters[params[2]].str_for_value(device.parameters[params[2]].value)
                 self.logger.info("Property %s changed of %s %s: %s" % ('value_string', 'device parameter', str(params), value_string))
-                self.osc_server.send("/live/device/get/parameter/value_string", (*params, value_string,))
+                self.osc_server.send("%s/get/parameter/value_string" % prefix, (*params, value_string,))
 
             listener_key = ('device_parameter_value', tuple(params))
             if listener_key in self.listener_functions:
@@ -123,7 +130,7 @@ class DeviceHandler(AbletonOSCHandler):
                 device.parameters[params[2]].remove_value_listener(listener_function)
                 del self.listener_functions[listener_key]
             else:
-                self.logger.warning("No listener function found for property: %s (%s)" % (prop, str(params)))
+                self.logger.warning("No listener function found for property: %s (%s)" % ('value', str(params)))
 
         def device_set_parameter_value(device, params: Tuple[Any] = ()):
             param_index, param_value = params[:2]
@@ -134,9 +141,9 @@ class DeviceHandler(AbletonOSCHandler):
             param_index = int(params[0])
             return param_index, device.parameters[param_index].name
 
-        self.osc_server.add_handler("/live/device/get/parameter/value", create_device_callback(device_get_parameter_value))
-        self.osc_server.add_handler("/live/device/get/parameter/value_string", create_device_callback(device_get_parameter_value_string))
-        self.osc_server.add_handler("/live/device/set/parameter/value", create_device_callback(device_set_parameter_value))
-        self.osc_server.add_handler("/live/device/get/parameter/name", create_device_callback(device_get_parameter_name))
-        self.osc_server.add_handler("/live/device/start_listen/parameter/value", create_device_callback(device_get_parameter_value_listener, include_ids = True))
-        self.osc_server.add_handler("/live/device/stop_listen/parameter/value", create_device_callback(device_get_parameter_remove_value_listener, include_ids = True))
+        self.osc_server.add_handler("%s/get/parameter/value" % prefix, create_device_callback(device_get_parameter_value))
+        self.osc_server.add_handler("%s/get/parameter/value_string" % prefix, create_device_callback(device_get_parameter_value_string))
+        self.osc_server.add_handler("%s/set/parameter/value" % prefix, create_device_callback(device_set_parameter_value))
+        self.osc_server.add_handler("%s/get/parameter/name" % prefix, create_device_callback(device_get_parameter_name))
+        self.osc_server.add_handler("%s/start_listen/parameter/value" % prefix, create_device_callback(device_get_parameter_value_listener, include_ids = True))
+        self.osc_server.add_handler("%s/stop_listen/parameter/value" % prefix, create_device_callback(device_get_parameter_remove_value_listener, include_ids = True))

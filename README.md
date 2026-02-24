@@ -572,6 +572,8 @@ Represents a scene, used to trigger a row of clips simultaneously. A scene's nam
 
 Represents an instrument or effect.
 
+All `/live/device/*` endpoints are also available as `/live/return/device/*` for devices on return tracks. The parameters are identical — `track_id` indexes into return tracks instead of regular tracks.
+
 <details>
 <summary><b>Documentation</b>: Device API</summary>
 
@@ -609,6 +611,8 @@ For devices:
 ## Looper Device API
 
 Provides direct access to the LooperDevice API for Looper instances. Addressed by track and device index, the same as the Device API. The targeted device must be a Looper; requests to non-Looper devices are ignored.
+
+All `/live/looper/*` endpoints are also available as `/live/return/looper/*` for Looper devices on return tracks.
 
 <details>
 <summary><b>Documentation</b>: Looper Device API</summary>
